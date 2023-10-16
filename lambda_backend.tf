@@ -1,11 +1,7 @@
 locals {
   backend_lambda_name = var.environment
-}
 
-data "archive_file" "backend" {
-  source_file = "${path.module}/backend/backend.py"
-  output_path = "${path.module}/backend/backend.zip"
-  type        = "zip"
+  venv_name = "venv"
 }
 
 data "aws_iam_policy" "AWSLambdaBasicExecutionRole" {
@@ -25,21 +21,9 @@ data "aws_iam_policy_document" "backend_lambda_execution_role" {
 
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
-    actions   = ["dynamodb:*"]
-    effect    = "Allow"
-    resources = [module.dynamodb_table.dynamodb_table_arn]
-  }
-  statement {
     actions = [
-      "secretsmanager:DescribeSecret",
-      "secretsmanager:Get*",
-      "secretsmanager:ListSecretVersionIds",
+      "bedrock:InvokeModel",
     ]
-    resources = ["*"]
-  }
-  statement {
-    actions   = ["polly:SynthesizeSpeech"]
-    effect    = "Allow"
     resources = ["*"]
   }
 }
@@ -70,21 +54,62 @@ resource "aws_iam_role_policy_attachment" "lambda_execution_policy" {
 }
 
 resource "aws_lambda_function" "backend" {
-  filename      = data.archive_file.backend.output_path
-  description   = "Create stories and store in DynamoDB"
+  filename      = "${path.module}/${local.backend_lambda_name}/${local.backend_lambda_name}.zip"
+  description   = "Fitness Chatbot"
   function_name = local.backend_lambda_name
   role          = aws_iam_role.lambda_execution_role_backend.arn
   handler       = "${local.backend_lambda_name}.lambda_handler"
-  runtime       = "python3.9"
+  runtime       = "python3.11"
   timeout       = 30
 
-  environment {
-    variables = {
-      ENVIRONMENT = module.dynamodb_table.dynamodb_table_id
-    }
-  }
-
-  source_code_hash = data.archive_file.backend.output_base64sha256
+  source_code_hash = filebase64sha256("${path.module}/${local.backend_lambda_name}/${local.backend_lambda_name}.zip")
 
   tags = var.tags
+
+  depends_on = [null_resource.package_lambda]
+}
+
+resource "null_resource" "package_lambda" {
+  provisioner "local-exec" {
+    command = <<-EOF
+      VENV_NAME="${local.venv_name}"
+      FILES_DIRECTORY="./${local.backend_lambda_name}"
+      OPENAI_FILENAME="${local.backend_lambda_name}"
+
+      # Creating a python virtual environment
+      python3.9 -m venv $VENV_NAME
+
+      # Activating the virtual environment
+      source $VENV_NAME/bin/activate
+
+      # Installing the requirements
+      pip3.9 install -r $FILES_DIRECTORY/requirements.txt
+
+      # Copying the python packages to the files directory
+      cp -R $VENV_NAME/lib/python3.9/site-packages/ $FILES_DIRECTORY/
+
+      # Going into the files directory
+      cd $FILES_DIRECTORY
+
+      # Remove old zip file
+      rm -f $OPENAI_FILENAME.zip
+
+      # Creating the zip file
+      zip -r $OPENAI_FILENAME.zip .
+
+      # Removing the files and directories after zip is created
+      find . -mindepth 1 -type d -exec rm -r {} \;
+      rm *.pth
+      rm six.py
+      deactivate
+
+      # Removing the virtual environment directory
+      cd ..
+      rm -rf $VENV_NAME
+    EOF
+  }
+  triggers = {
+    requirements_hash    = filesha256("${path.module}/${local.backend_lambda_name}/requirements.txt")
+    story_generator_hash = filesha256("${path.module}/${local.backend_lambda_name}/${local.backend_lambda_name}.py")
+  }
 }

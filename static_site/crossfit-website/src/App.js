@@ -1,11 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import Draggable from 'react-draggable';
 import './App.css';
 import CrossfitImage1 from './crossfit-image-1.jpg';
 import CrossfitImage2 from './crossfit-image-2.jpg';
 import CrossfitImage3 from './crossfit-image-3.jpg';
 
+const API_ENDPOINT = "https://djft8ctg28.execute-api.us-east-1.amazonaws.com/prod/fitness_chatbot";
+
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [chatMessage, setChatMessage] = useState("");
+  const [responses, setResponses] = useState(["Ask me a fitness question."]);
+  const [isSending, setIsSending] = useState(false);
+  const [toddIsTyping, setToddIsTyping] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false); // to handle chatbot expand/collapse on mobile
+
+  const chatContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [responses]);
+
+  const handleChatSubmit = async (e) => {
+    e.preventDefault();
+    setIsSending(true);
+    setToddIsTyping(true);
+    try {
+      const response = await axios.post(API_ENDPOINT, {
+        question: chatMessage
+      });
+      const completionText = response.data.completion;
+      setResponses([...responses, chatMessage, completionText]);
+      setChatMessage("");
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setResponses([...responses, "Sorry, I couldn't process that. Please try again."]);
+    }
+    setIsSending(false);
+    setToddIsTyping(false);
+  };
+
   return (
     <div className="app">
       <header>
@@ -46,6 +83,35 @@ function App() {
           <img src={CrossfitImage3} alt="Crossfit client 3" />
         </section>
       </header>
+
+      {isChatOpen ? (
+        <div className="chatbot">
+          <header>
+            Todd - your fitness AI
+            <button className="minimize-button" onClick={() => setIsChatOpen(false)}>−</button>
+          </header>
+          <div className="chatbot-messages" ref={chatContainerRef}>
+            {responses.map((msg, idx) => (
+              <div key={idx} className={idx % 2 === 0 ? "user-message" : "bot-message"}>
+                {msg}
+              </div>
+            ))}
+            {toddIsTyping && <div className="bot-message">Todd is typing...</div>}
+          </div>
+          <form onSubmit={handleChatSubmit}>
+            <input
+              type="text"
+              value={chatMessage}
+              onChange={e => setChatMessage(e.target.value)}
+              placeholder="Type your message..."
+            />
+            <button type="submit" disabled={isSending}>Send</button>
+          </form>
+        </div>
+      ) : (
+        <button className="chatbot-button" onClick={() => setIsChatOpen(true)}>Ask me a fitness question</button>
+      )}
+
       <footer>
         <p>© 2023 CrossFit Viking. All rights reserved.</p>
       </footer>
