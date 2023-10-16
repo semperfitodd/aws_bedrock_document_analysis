@@ -1,0 +1,103 @@
+.app {
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  background-color: black;
+  color: white;
+}
+
+header {
+  background-color: #222;
+  color: white;
+  padding: 10px 0;
+  position: relative;
+}
+
+.menu {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+}
+
+.menu li {
+  display: inline-block;
+}
+
+.menu a {
+  color: white;
+  text-decoration: none;
+  padding: 5px 10px;
+  transition: background-color 0.3s;
+}
+
+.menu a:hover, .menu a:focus {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.menu-toggle {
+  display: block; /* show by default on mobile */
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+}
+
+nav {
+  display: none; /* hide navigation on mobile */
+}
+
+nav.active {
+  display: block; /* show navigation when active */
+  max-height: calc(100vh - 60px); /* Assuming header height is around 60px */
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  nav {
+    display: block; /* always show navigation on desktop */
+  }
+
+  .menu-toggle {
+    display: none; /* hide hamburger icon on desktop */
+  }
+}
+
+.section-title {
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.wod, .clients, .warmup, .cashout {
+  margin: 20px 0;
+}
+
+.clients img {
+  width: 300px;
+  height: 300px;
+  margin: 10px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+footer {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .app {
+    padding: 10px;
+  }
+
+  .clients img {
+    width: 150px;
+    height: 150px;
+  }
+}
