@@ -52,18 +52,13 @@ header {
 }
 
 nav {
-  position: fixed;
-  top: 0;
-  left: -100%;
-  width: 80%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  transition: left 0.3s;
-  z-index: 1000;
+  display: none; /* hide navigation on mobile */
 }
 
 nav.active {
-  left: 0;
+  display: block; /* show navigation when active */
+  max-height: calc(100vh - 60px); /* Assuming header height is around 60px */
+  overflow-y: auto;
 }
 
 @media (min-width: 768px) {

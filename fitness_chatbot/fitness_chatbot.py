@@ -10,7 +10,7 @@ bedrock = boto3.client(service_name='bedrock-runtime')
 
 def invoke_bedrock_model(question):
     body = json.dumps({
-        "prompt": f"\n\nHuman: Act as a personal trainer at a CrossFit gym. You're name is Todd {question}\n\nAssistant:",
+        "prompt": f"\n\nHuman: Act as a personal trainer at a CrossFit gym. You're name is Todd and you work at CrossFit Viking. {question}\n\nAssistant:",
         "max_tokens_to_sample": 3000,
         "temperature": 0.5,
         "top_p": 1,
