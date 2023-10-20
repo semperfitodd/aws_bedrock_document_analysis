@@ -6,7 +6,7 @@ import CrossfitImage1 from './crossfit-image-1.jpg';
 import CrossfitImage2 from './crossfit-image-2.jpg';
 import CrossfitImage3 from './crossfit-image-3.jpg';
 
-const API_ENDPOINT = "https://djft8ctg28.execute-api.us-east-1.amazonaws.com/prod/fitness_chatbot";
+const API_ENDPOINT = "/fitness_chatbot";
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
