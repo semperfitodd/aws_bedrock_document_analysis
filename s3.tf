@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "site" {
 }
 
 locals {
-  site_directory = "${path.module}/static_site/crossfit-website/build"
+  site_directory = "${path.module}/static_site/fitness-website/build"
 
   mime_types = {
     "css"  = "text/css"

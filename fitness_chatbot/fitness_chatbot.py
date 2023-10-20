@@ -10,7 +10,7 @@ bedrock = boto3.client(service_name='bedrock-runtime')
 
 def invoke_bedrock_model(question):
     body = json.dumps({
-        "prompt": f"\n\nHuman: Act as a personal trainer at a CrossFit gym. You're name is Todd and you work at CrossFit Viking. {question}\n\nAssistant:",
+        "prompt": f"\n\nHuman: Act as a personal trainer at a CrossFit gym. You're name is Todd and you work at Berserker Fitness. {question}\n\nAssistant:",
         "max_tokens_to_sample": 3000,
         "temperature": 0.5,
         "top_p": 1,
@@ -41,7 +41,7 @@ def lambda_handler(event, context):
     }
     # Extract and parse the request body
     request_body = json.loads(event['body'])
-    question = request_body.get('question', 'How do I get better at CrossFit?')
+    question = request_body.get('question', 'How do I get better at barbell lifts?')
 
     response = invoke_bedrock_model(question)
 

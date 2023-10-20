@@ -19,7 +19,7 @@ This project is an implementation of a fitness chatbot hosted on AWS. The fronte
    Navigate to the React frontend:
    
    ```bash
-   cd static_site/crossfit-website
+   cd static_site/fitness-website
    ```
    Install the required dependencies:
 
