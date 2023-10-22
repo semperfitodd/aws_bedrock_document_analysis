@@ -6,7 +6,7 @@ import FitnessImage1 from './fitness-image-1.jpg';
 import FitnessImage2 from './fitness-image-2.jpg';
 import FitnessImage3 from './fitness-image-3.jpg';
 
-const API_ENDPOINT = "https://djft8ctg28.execute-api.us-east-1.amazonaws.com/prod/fitness_chatbot";
+const API_ENDPOINT = "/fitness_chatbot";
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
